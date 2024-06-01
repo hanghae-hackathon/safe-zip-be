@@ -13,7 +13,7 @@ app = FastAPI(
 )
 
 @app.post("/ocr")
-def get(image_file: UploadFile = File(...), is_landlord: str = Form("0")):
+def get(image_file: UploadFile = File(...), is_landlord: str = Form("0"), user_question: str = Form("")):
     image_files = [image_file]
     
     file_extension = get_file_extension(image_file.filename)
@@ -22,9 +22,9 @@ def get(image_file: UploadFile = File(...), is_landlord: str = Form("0")):
 
     texts = [get_text(image_file) for image_file in image_files]
     text = '\n\n'.join(texts) 
-    response = get_response(text, is_landlord)
     
-    return response
+    response = get_rag_response(text, is_landlord, user_question)
+    return {"result": response}
 
 def get_file_extension(filename):
     _, file_extension = os.path.splitext(filename)
@@ -87,9 +87,6 @@ def get_text(image_file):
             text += ' '
 
     return text
-
-def get_response(contract, is_landlord):
-    return get_rag_response(contract, is_landlord)
 
 # uvicorn main:app --host 0.0.0.0 --port 8000
 # http://localhost:8000/docs

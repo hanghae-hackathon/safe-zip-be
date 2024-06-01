@@ -80,9 +80,12 @@ non_landlord_chain = {
     "contract": RunnablePassthrough()
     } | non_landlord_prompt | llm | StrOutputParser()
 
-def get_rag_response(contract, is_landlord):
-    print(retriever.get_relevant_documents(contract))
+def get_rag_response(contract, is_landlord, user_question):
+    input = contract
+
+    if user_question != "":
+        input += "\n\n응답을 마친 후 다음 질문에 대해서도 답해주세요:" + user_question
 
     if is_landlord == "1":
-        return landlord_chain.invoke(contract)
-    return non_landlord_chain.invoke(contract)
+        return landlord_chain.invoke(input)
+    return non_landlord_chain.invoke(input)
